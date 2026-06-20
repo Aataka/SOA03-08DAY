@@ -1,0 +1,40 @@
+# Local .terraform directories
+.terraform/
+
+# .tfstate files
+*.tfstate
+*.tfstate.*
+
+# Crash log files
+crash.log
+crash.*.log
+
+# Exclude all .tfvars files, which are likely to contain sensitive data.
+*.tfvars
+*.tfvars.json
+
+# Override files
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Lock info
+.terraform.tfstate.lock.info
+
+# CLI configuration files
+.terraformrc
+terraform.rc
+
+# 作業用一時ファイル（_*.sh / _*.out 等。入れ子クォート回避用）
+_*
+
+# Zenn記事・学習足場はGitHubに公開しない（ローカルのみ保持・公開はZenn側）
+# 公開リポジトリは Terraform/IaC ＋ README のみ
+*-zenn.md
+docs/
+study/
+
+# OS
+.DS_Store
+Thumbs.db
