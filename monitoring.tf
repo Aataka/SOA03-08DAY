@@ -10,6 +10,23 @@ resource "aws_sns_topic_subscription" "email" {
   endpoint  = var.notification_email
 }
 
+# Route 53 ヘルスチェックのアラームは us-east-1 にしか作れない。
+# CloudWatchアラームのSNSアクションはアラームと同一リージョン必須なので、
+# us-east-1 にも SNS トピックを用意する（ap-northeast-1のSNSを指すとPutMetricAlarmが拒否される）。
+resource "aws_sns_topic" "alarms_use1" {
+  provider = aws.use1
+  name     = "${var.name_prefix}-ha-alarms-use1-${random_id.suffix.hex}"
+  tags     = local.tags
+}
+
+resource "aws_sns_topic_subscription" "email_use1" {
+  count     = var.notification_email == "" ? 0 : 1
+  provider  = aws.use1
+  topic_arn = aws_sns_topic.alarms_use1.arn
+  protocol  = "email"
+  endpoint  = var.notification_email
+}
+
 # --- ALB: 異常ホスト >= 1（ターゲットがローテーションから外れた）---
 resource "aws_cloudwatch_metric_alarm" "unhealthy_hosts" {
   alarm_name          = "${local.name}-alb-unhealthy-hosts"
@@ -79,7 +96,7 @@ resource "aws_cloudwatch_metric_alarm" "route53_unhealthy" {
   dimensions = {
     HealthCheckId = aws_route53_health_check.app.id
   }
-  alarm_actions = [aws_sns_topic.alarms.arn]
+  alarm_actions = [aws_sns_topic.alarms_use1.arn] # 同一リージョン(us-east-1)のSNS
 }
 
 # --- ASG: 稼働インスタンス < 2 ---
